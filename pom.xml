@@ -19,5 +19,16 @@
             <version>5.10.2</version>
             <scope>test</scope>
         </dependency>
+        <!-- LangChain4j Bedrock -->
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j</artifactId>
+            <version>0.35.0</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j-bedrock</artifactId>
+            <version>0.35.0</version>
+        </dependency>
     </dependencies>
 </project>
