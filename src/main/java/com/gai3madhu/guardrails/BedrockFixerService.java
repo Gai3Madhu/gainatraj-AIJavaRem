@@ -1,36 +1,40 @@
 package com.gai3madhu.guardrails;
 
-import dev.langchain4j.model.bedrock.BedrockAnthropicMessageChatModel;
-import dev.langchain4j.model.chat.ChatLanguageModel;
-import software.amazon.awssdk.regions.Region;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 public class BedrockFixerService {
-
-    private ChatLanguageModel claude;
+    private final String apiKey;
+    private final HttpClient client = HttpClient.newHttpClient();
 
     public BedrockFixerService() {
-        // Uses your AWS credentials from ~/.aws/credentials
-        this.claude = BedrockAnthropicMessageChatModel.builder()
-                .model("anthropic.claude-3-haiku-20240307-v1:0") // cheapest, fast
-                .region(Region.of("us-east-1"))
-                .maxTokens(1000)
-                .temperature(0.0)
-                .build();
+        String key = System.getenv("GOOGLE_API_KEY");
+        if (key == null || key.isBlank()) {
+            throw new IllegalStateException("GOOGLE_API_KEY environment variable not set");
+        }
+        apiKey = key.trim();
     }
 
     public String fixCode(FlawChecker flaw, String badCode) {
-        String prompt = """
-            You are a IBMi to Java modernization expert.
-            FLAW: %s
-            WHY IT HAPPENS: %s
-            FIX RULE: %s
-            
-            BAD CODE FROM AI:
-            %s
-            
-            Return ONLY fixed Java code. No explanation.
-            """.formatted(flaw.getFlawName(), flaw.getWhyAIDoesIt(), flaw.fixPrompt(), badCode);
+        try {
+            String prompt = "IBMi expert. Flaw:" + flaw.getFlawName() + " Fix:" + flaw.fixPrompt() + " Code:" + badCode;
+            String json = "{\"contents\":[{\"parts\":[{\"text\":\"" + prompt.replace("\"","'").replace("\n"," ") + "\"}]}]}";
+            /** Why gemini-3.5-flash-lite worked and flash-latest didn't?
+               flash-latest points to the heavy 2.5 Pro which is hammered right now - 503. 3.5-flash-lite is the new light model Google made exactly for AQ keys on free tier - less traffic, faster. **/
+            HttpRequest req = HttpRequest.newBuilder()
+                    //.uri(URI.create("https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent"))
+                    .uri(URI.create("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent"))
+                  //  .uri(URI.create("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent"))
+                    .header("Content-Type","application/json")
+                    .header("x-goog-api-key", apiKey)
+                    .POST(HttpRequest.BodyPublishers.ofString(json))
+                    .build();
 
-        return claude.generate(prompt);
+            var res = client.send(req, HttpResponse.BodyHandlers.ofString());
+            System.out.println("Status: " + res.statusCode());
+            return res.body();
+        } catch (Exception e) { throw new RuntimeException(e); }
     }
 }

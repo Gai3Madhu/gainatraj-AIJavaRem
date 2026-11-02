@@ -19,16 +19,21 @@
             <version>5.10.2</version>
             <scope>test</scope>
         </dependency>
-        <!-- LangChain4j Bedrock -->
-        <dependency>
+        <!-- LangChain4j Bedrock for future-->
+        <!--dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j</artifactId>
-            <version>0.35.0</version>
-        </dependency>
+            <version>1.0.0-beta1</version>
+        </dependency-->
         <dependency>
             <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-bedrock</artifactId>
-            <version>0.35.0</version>
+            <artifactId>langchain4j-google-ai-gemini</artifactId>
+            <version>1.0.0-beta1</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.6.3</version>
         </dependency>
     </dependencies>
 </project>
