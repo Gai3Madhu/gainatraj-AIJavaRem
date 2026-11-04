@@ -1,5 +1,8 @@
 # IBM i to Java Modernization - AI Guardrails
 
+Why this project?
+Claude/GPT generates unsafe Java when migrating RPG/COBOL. This repo documents 15 real flaws and provides Java checkers to detect them.
+
 AI generates Java but misses IBM i specifics. This project detects 2 real flaws.
 
 **Flaws detected:**
